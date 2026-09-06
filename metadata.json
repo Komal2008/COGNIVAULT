@@ -1,0 +1,10 @@
+{
+  "name": "Cognivault",
+  "description": "Your thoughts. Your intelligence. Your vault. A secure, premium personal AI reflection and journaling platform powered by Gemini.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,140 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: Default-deny catch-all for all unspecified collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper Primitives
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidMood(mood) {
+      return mood in ['happy', 'calm', 'reflective', 'stressed', 'curious', 'focused'];
+    }
+
+    // Entity Validators
+    function isValidUser(data, uid) {
+      return data.uid is string && data.uid == uid &&
+             (!('displayName' in data) || (data.displayName is string && data.displayName.size() <= 100)) &&
+             (!('email' in data) || (data.email is string && data.email.size() <= 150)) &&
+             (!('currentMood' in data) || isValidMood(data.currentMood));
+    }
+
+    function isValidConversation(data, convId) {
+      return data.id is string && data.id == convId &&
+             data.title is string && data.title.size() > 0 && data.title.size() <= 150 &&
+             (!('summary' in data) || (data.summary is string && data.summary.size() <= 2000)) &&
+             (!('mood' in data) || isValidMood(data.mood)) &&
+             (!('topics' in data) || (data.topics is list && data.topics.size() <= 20)) &&
+             (!('keyInsights' in data) || (data.keyInsights is list && data.keyInsights.size() <= 20)) &&
+             (!('actionItems' in data) || (data.actionItems is list && data.actionItems.size() <= 50));
+    }
+
+    function isValidMessage(data, msgId) {
+      return data.id is string && data.id == msgId &&
+             data.role in ['user', 'model'] &&
+             data.content is string && data.content.size() > 0 && data.content.size() <= 8000;
+    }
+
+    function isValidInsight(data, insightId) {
+      return data.id is string && data.id == insightId &&
+             data.aiObservation is string && data.aiObservation.size() <= 3000 &&
+             (!('recurringThemes' in data) || (data.recurringThemes is list && data.recurringThemes.size() <= 20)) &&
+             (!('actionItems' in data) || (data.actionItems is list && data.actionItems.size() <= 50));
+    }
+
+    // User Profile Document
+    match /users/{uid} {
+      allow get, list: if isOwner(uid) && isValidId(uid);
+      allow create: if isOwner(uid) && isValidId(uid) && isValidUser(incoming(), uid);
+      allow update: if isOwner(uid) && isValidId(uid) && isValidUser(incoming(), uid);
+      allow delete: if isOwner(uid) && isValidId(uid);
+
+      // User's Conversations Subcollection
+      match /conversations/{conversationId} {
+        allow get, list: if isOwner(uid) && isValidId(uid);
+        allow create: if isOwner(uid) && isValidId(uid) && isValidId(conversationId) &&
+                        isValidConversation(incoming(), conversationId);
+        allow update: if isOwner(uid) && isValidId(uid) && isValidId(conversationId) &&
+                        isValidConversation(incoming(), conversationId) &&
+                        incoming().createdAt == existing().createdAt;
+        allow delete: if isOwner(uid) && isValidId(uid) && isValidId(conversationId);
+
+        // Messages Subcollection
+        match /messages/{messageId} {
+          allow get, list: if isOwner(uid) && isValidId(uid) && isValidId(conversationId);
+          allow create: if isOwner(uid) && isValidId(uid) && isValidId(conversationId) && isValidId(messageId) &&
+                          isValidMessage(incoming(), messageId);
+          allow update: if isOwner(uid) && isValidId(uid) && isValidId(conversationId) && isValidId(messageId) &&
+                          isValidMessage(incoming(), messageId);
+          allow delete: if isOwner(uid) && isValidId(uid) && isValidId(conversationId) && isValidId(messageId);
+        }
+      }
+
+      // User's Derived Insights Subcollection
+      match /insights/{insightId} {
+        allow get, list: if isOwner(uid) && isValidId(uid);
+        allow create: if isOwner(uid) && isValidId(uid) && isValidId(insightId) &&
+                        isValidInsight(incoming(), insightId);
+        allow update: if isOwner(uid) && isValidId(uid) && isValidId(insightId) &&
+                        isValidInsight(incoming(), insightId);
+        allow delete: if isOwner(uid) && isValidId(uid) && isValidId(insightId);
+      }
+
+      // User's Gamification & Journey Subcollection
+      match /gamification/{docId} {
+        allow get, list: if isOwner(uid) && isValidId(uid);
+        allow create, update: if isOwner(uid) && isValidId(uid) && isValidId(docId);
+        allow delete: if isOwner(uid) && isValidId(uid) && isValidId(docId);
+      }
+
+      // User's Tomorrow Notes
+      match /tomorrow_notes/{noteId} {
+        allow get, list: if isOwner(uid) && isValidId(uid);
+        allow create, update: if isOwner(uid) && isValidId(uid) && isValidId(noteId);
+        allow delete: if isOwner(uid) && isValidId(uid) && isValidId(noteId);
+      }
+
+      // User's Evening Reflections
+      match /evening_reflections/{reflectionId} {
+        allow get, list: if isOwner(uid) && isValidId(uid);
+        allow create, update: if isOwner(uid) && isValidId(uid) && isValidId(reflectionId);
+        allow delete: if isOwner(uid) && isValidId(uid) && isValidId(reflectionId);
+      }
+
+      // User's Tiny Wins
+      match /tiny_wins/{winId} {
+        allow get, list: if isOwner(uid) && isValidId(uid);
+        allow create, update: if isOwner(uid) && isValidId(uid) && isValidId(winId);
+        allow delete: if isOwner(uid) && isValidId(uid) && isValidId(winId);
+      }
+
+      // User's Thought-to-Action Items
+      match /actions/{actionId} {
+        allow get, list: if isOwner(uid) && isValidId(uid);
+        allow create, update: if isOwner(uid) && isValidId(uid) && isValidId(actionId);
+        allow delete: if isOwner(uid) && isValidId(uid) && isValidId(actionId);
+      }
+    }
+  }
+}

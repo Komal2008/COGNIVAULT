@@ -1,0 +1,174 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Authenticated user profile and preferences",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Auth UID matching the authenticated user"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "User display name",
+          "maxLength": 100
+        },
+        "email": {
+          "type": "string",
+          "description": "User email address",
+          "maxLength": 150
+        },
+        "currentMood": {
+          "type": "string",
+          "description": "Last selected journal mood",
+          "enum": ["happy", "calm", "reflective", "stressed", "curious", "focused"]
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Server timestamp of last profile update"
+        }
+      },
+      "required": ["uid", "updatedAt"]
+    },
+    "Conversation": {
+      "title": "Journal Conversation",
+      "description": "Private multi-turn journal conversation session",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique conversation ID"
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the journal reflection session",
+          "maxLength": 150
+        },
+        "summary": {
+          "type": "string",
+          "description": "AI-generated or user summary of the conversation",
+          "maxLength": 2000
+        },
+        "mood": {
+          "type": "string",
+          "description": "Associated reflective mood",
+          "enum": ["happy", "calm", "reflective", "stressed", "curious", "focused"]
+        },
+        "topics": {
+          "type": "array",
+          "description": "Extracted key discussion topics"
+        },
+        "keyInsights": {
+          "type": "array",
+          "description": "Key takeaways and insights"
+        },
+        "actionItems": {
+          "type": "array",
+          "description": "Identified action items for self-growth"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Server timestamp when conversation started"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Server timestamp when conversation was last updated"
+        }
+      },
+      "required": ["id", "title", "createdAt", "updatedAt"]
+    },
+    "Message": {
+      "title": "Conversation Message",
+      "description": "Individual message in a journal conversation",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Message document ID"
+        },
+        "role": {
+          "type": "string",
+          "description": "Role of the author",
+          "enum": ["user", "model"]
+        },
+        "content": {
+          "type": "string",
+          "description": "Text content of the reflection or prompt",
+          "maxLength": 8000
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp of the message"
+        }
+      },
+      "required": ["id", "role", "content", "timestamp"]
+    },
+    "Insight": {
+      "title": "Cognivault Derived Insight",
+      "description": "Synthesized reflection patterns and themes derived across conversations",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique insight document ID"
+        },
+        "recurringThemes": {
+          "type": "array",
+          "description": "Recurring thematic threads observed in journaling"
+        },
+        "aiObservation": {
+          "type": "string",
+          "description": "Empathetic Socratic personal observation",
+          "maxLength": 3000
+        },
+        "actionItems": {
+          "type": "array",
+          "description": "Consolidated actionable growth items"
+        },
+        "moodDistribution": {
+          "type": "object",
+          "description": "Counts of mood instances"
+        },
+        "generatedAt": {
+          "type": "string",
+          "description": "Server timestamp when insight was compiled"
+        }
+      },
+      "required": ["id", "aiObservation", "generatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": "User",
+      "description": "Stores private user account metadata and current mood preference"
+    },
+    "/users/{uid}/conversations/{conversationId}": {
+      "schema": "Conversation",
+      "description": "Stores user journal conversations, summaries, topics, and actions"
+    },
+    "/users/{uid}/conversations/{conversationId}/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Stores individual conversational turns between user and Gemini reflection partner"
+    },
+    "/users/{uid}/insights/{insightId}": {
+      "schema": "Insight",
+      "description": "Stores synthesized reflection patterns and overarching insights for the user"
+    },
+    "/users/{uid}/gamification/{docId}": {
+      "description": "Stores user reflection XP, streak, badges, and journey progress without clinical implications"
+    },
+    "/users/{uid}/tomorrow_notes/{noteId}": {
+      "description": "Stores reflections saved for tomorrow to create continuity"
+    },
+    "/users/{uid}/evening_reflections/{reflectionId}": {
+      "description": "Stores end-of-day pride, key thought, and next-day intentions"
+    },
+    "/users/{uid}/tiny_wins/{winId}": {
+      "description": "Stores small personal wins for the private Growth Timeline"
+    },
+    "/users/{uid}/actions/{actionId}": {
+      "description": "Stores user-accepted Thought-to-Action items"
+    }
+  }
+}
