@@ -54,15 +54,9 @@ Instead of simply answering questions, the AI can:
 
 ### Reflection Flow
 
-```mermaid
-flowchart LR
-    A[💭 User Thought] --> B[💬 Conversation]
-    B --> C[🤖 Gemini]
-    C --> D[🔎 Identify Assumptions]
-    D --> E[❓ Socratic Question]
-    E --> B
-    B --> F[💡 Personal Insight]
-```
+<img width="948" height="391" alt="image" src="https://github.com/user-attachments/assets/b9f5c5d4-8c05-429a-aed9-2f9feedb4e13" />
+
+
 
 ---
 
@@ -556,22 +550,6 @@ Allow Operation
 # 🔑 Secret Management
 
 Cognivault never exposes the Gemini API key in the frontend.
-
-### Secret Flow
-
-```mermaid
-flowchart LR
-
-    A[Google Cloud Secret Manager]
-        -->|Runtime Injection| B[Cloud Run Container]
-
-    B --> C[process.env.GEMINI_API_KEY]
-
-    C --> D[@google/genai]
-
-    D --> E[Gemini API]
-```
-
 ### Security Rules
 
 * `GEMINI_API_KEY` is stored in Google Cloud Secret Manager.
@@ -1117,7 +1095,7 @@ An appropriate open-source license can be added if the project is distributed pu
 
 # 👩‍💻 Author
 
-## Kajal Pandey
+## Komal Pandey
 
 Built with ❤️, curiosity, creativity, and AI.
 
