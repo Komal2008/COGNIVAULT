@@ -116,7 +116,7 @@ Cognivault utilizes Firebase Authentication for secure identity and Cloud Firest
 
 ## 5. Firestore Data Model & Isolation
 
-All user-generated records are strictly partitioned under `/users/{uid}`:
+All user-generated records are strictly partitioned under `/users/{uid}`
 
 - `/users/{uid}`: User profile, preferences, and active mood.
 - `/users/{uid}/conversations/{conversationId}`: Journal conversation documents, summaries, and topics.
