@@ -941,11 +941,11 @@ Reflect on learning experiences and identify recurring themes.
 
 ### 🎯 Goal & Growth Reflection
 
-Use recurring insights to identify actionable areas for personal growth.
+Use recurring insights to identify actionable areas for personal growth .
 
 ### 🌿 Mental Focus
 
-Use Focus Sanctuary and mood atmospheres to create a distraction-free environment.
+Use Focus Sanctuary and mood atmospheres to create a distraction-free environment .
 
 ---
 
