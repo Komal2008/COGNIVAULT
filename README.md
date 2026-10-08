@@ -12,7 +12,7 @@ Engineered with **zero-trust architectural principles**, Cognivault combines Soc
 
 ---
 
-# ✨ What is Cognivault?
+# ✨ What is Cognivault??
 
 Traditional journaling allows you to record your thoughts.
 
